@@ -552,3 +552,59 @@ body.light .dock-item .acc { stroke: var(--gold); }
 .logo svg { width: 22px; height: 22px; display: block; }
 .logo .acc { stroke: var(--accent); }
 .brand:hover .logo .acc { stroke: var(--accent-2); }
+
+/* =====================================================
+   Island dock + magnetic pull
+   ===================================================== */
+:root { --glide: rgba(46, 230, 197, .14); --glide-line: rgba(46, 230, 197, .5); }
+body.light { --glide: rgba(15, 168, 139, .12); --glide-line: rgba(15, 168, 139, .45); }
+
+/* the dock becomes a true island: a pill that drops in and breathes on hover */
+.dock {
+  padding: 6px;
+  border-radius: 999px;
+  gap: 2px;
+  animation: islandIn .9s cubic-bezier(.2, .9, .25, 1) backwards;
+  transition: transform .5s cubic-bezier(.22, 1, .36, 1), box-shadow .5s, background-color .4s, border-color .4s;
+}
+.dock:hover {
+  transform: translateX(-50%) translateY(-3px);
+  box-shadow: 0 30px 70px -20px rgba(0, 0, 0, .65), 0 0 46px -12px var(--glow), 0 0 0 1px rgba(255, 255, 255, .04) inset;
+}
+@keyframes islandIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(26px) scale(.9); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+}
+
+/* the glide: one highlight pill that slides to whichever item is hovered or focused */
+.glide {
+  position: absolute; top: 6px; bottom: 6px; left: 0; width: 0;
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--glide), rgba(46, 230, 197, .04));
+  border: 1px solid var(--glide-line);
+  box-shadow: 0 0 22px -4px var(--glow), inset 0 1px 0 rgba(255, 255, 255, .12);
+  pointer-events: none;
+  opacity: 0;
+  transition: left .55s cubic-bezier(.22, 1, .36, 1), width .55s cubic-bezier(.22, 1, .36, 1), opacity .3s ease;
+  z-index: 0;
+}
+.dock-item {
+  position: relative; z-index: 1;
+  border-radius: 999px;
+  padding: 8px 14px;
+}
+.dock-item:hover { background: none; }
+.dock-item.active { background: none; border: 0; box-shadow: none; color: var(--text); }
+.dock-item.active .di { color: var(--accent-2); }
+
+/* magnetic elements: they lean toward the pointer on fine-pointer devices */
+.dock-item.mag, .btn.mag {
+  transition: transform .45s cubic-bezier(.22, 1, .36, 1), color .2s, background .2s, border-color .25s, box-shadow .3s;
+  will-change: transform;
+}
+.dock-item.mag.tracking, .btn.mag.tracking { transition: transform .15s linear, color .2s, background .2s, border-color .25s, box-shadow .3s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .dock { animation: none; }
+  .glide { transition: none; }
+}

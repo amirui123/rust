@@ -97,3 +97,68 @@
   input.addEventListener('input', function () { filterDock(input.value); });
   input.addEventListener('search', function () { filterDock(input.value); });
 })();
+
+// ---------- island glide + magnetic pull ----------
+(function () {
+  var dock = document.querySelector('.dock');
+  if (!dock) return;
+  var glide = dock.querySelector('.glide');
+  var items = Array.prototype.slice.call(dock.querySelectorAll('.dock-item'));
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var fine = window.matchMedia('(pointer: fine)').matches;
+
+  function visibleItems() {
+    return items.filter(function (el) { return !el.classList.contains('hidden'); });
+  }
+  function moveTo(el) {
+    if (!el) { glide.style.opacity = '0'; return; }
+    glide.style.opacity = '1';
+    glide.style.left = el.offsetLeft + 'px';
+    glide.style.width = el.offsetWidth + 'px';
+  }
+  function rest() {
+    var active = dock.querySelector('.dock-item.active');
+    if (!active || active.classList.contains('hidden')) active = visibleItems()[0];
+    moveTo(active || null);
+  }
+
+  items.forEach(function (el) {
+    el.addEventListener('pointerenter', function () { moveTo(el); });
+    el.addEventListener('focus', function () { moveTo(el); });
+    el.addEventListener('blur', rest);
+  });
+  dock.addEventListener('pointerleave', rest);
+
+  window.addEventListener('resize', rest);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(rest);
+  var searchEl = document.getElementById('searchInput');
+  if (searchEl) searchEl.addEventListener('input', function () { setTimeout(rest, 0); });
+  rest();
+
+  // magnetic pull (only with a precise pointer and motion allowed)
+  if (!fine || reduce) return;
+  var magnets = items.concat(Array.prototype.slice.call(document.querySelectorAll('.btn')));
+  magnets.forEach(function (el) {
+    var isBtn = el.classList.contains('btn');
+    var strength = isBtn ? 0.2 : 0.28;
+    var max = isBtn ? 8 : 6;
+    el.classList.add('mag');
+    el.addEventListener('pointermove', function (e) {
+      // measure the resting centre, not the moved one, so the pull does not jitter
+      var r = el.getBoundingClientRect();
+      var curX = el._mx || 0, curY = el._my || 0;
+      var cx = r.left + r.width / 2 - curX;
+      var cy = r.top + r.height / 2 - curY;
+      var x = Math.max(-max, Math.min(max, (e.clientX - cx) * strength));
+      var y = Math.max(-max, Math.min(max, (e.clientY - cy) * strength));
+      el._mx = x; el._my = y;
+      el.classList.add('tracking');
+      el.style.transform = 'translate(' + x.toFixed(2) + 'px,' + y.toFixed(2) + 'px)';
+    });
+    el.addEventListener('pointerleave', function () {
+      el._mx = 0; el._my = 0;
+      el.classList.remove('tracking');
+      el.style.transform = '';
+    });
+  });
+})();
