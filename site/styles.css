@@ -537,3 +537,18 @@ body { -webkit-font-smoothing: antialiased; }
   .ambient span, .line-2, .live-dot::after { animation: none !important; }
   .btn.primary::before { display: none; }
 }
+
+/* ---------- custom icon set (dock + brand) ---------- */
+.dock-item .di { display: inline-grid; place-items: center; width: 18px; height: 18px; font-size: inherit; }
+.dock-item .di svg { width: 18px; height: 18px; display: block; overflow: visible; }
+.dock-item:hover .di svg { transform: translateY(-1px); }
+.dock-item .di svg { transition: transform .2s ease; }
+.dock-item .acc { stroke: var(--gold); fill: none; transition: stroke .3s; }
+.dock-item .acc.f { fill: var(--gold); stroke: none; }
+.dock-item .f { fill: currentColor; stroke: none; }
+.dock-item.active .di { color: var(--accent-2); }
+.dock-item.active .di .acc { stroke: var(--gold); }
+body.light .dock-item .acc { stroke: var(--gold); }
+.logo svg { width: 22px; height: 22px; display: block; }
+.logo .acc { stroke: var(--accent); }
+.brand:hover .logo .acc { stroke: var(--accent-2); }
